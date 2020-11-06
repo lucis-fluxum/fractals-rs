@@ -15,6 +15,20 @@ const MAX_OUTPUT_NORM: f64 = 100.0;
 const JULIA_CONSTANT: Complex<f64> = Complex::new(-0.512511498387847167, 0.521295573094847167);
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut encoder = Encoder::new(
+        BufWriter::new(File::create("output.png")?),
+        SCREEN_WIDTH,
+        SCREEN_HEIGHT,
+    );
+    encoder.set_color(ColorType::Grayscale);
+    encoder.set_depth(BitDepth::Eight);
+    let mut writer = encoder.write_header()?;
+    writer.write_image_data(&generate_julia_set(1.0, 0.0, 0.0))?;
+
+    Ok(())
+}
+
+fn generate_julia_set(scale: f64, horiz_offset: f64, vert_offset: f64) -> Vec<u8> {
     let pixels: Arc<Mutex<Vec<Vec<u8>>>> = Arc::new(Mutex::new(vec![
         vec![0; SCREEN_WIDTH as usize];
         SCREEN_HEIGHT as usize
@@ -25,8 +39,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     (-height / 2..height / 2).into_par_iter().for_each(|imag| {
         (-width / 2..width / 2).into_par_iter().for_each(|real| {
             let n = Complex::new(
-                (real as f64) / ((width / 2) as f64),
-                (imag as f64) / ((height / 2) as f64),
+                (real as f64) / ((width / 2) as f64) * scale + horiz_offset,
+                (imag as f64) / ((height / 2) as f64) * scale + vert_offset,
             );
             let iterations = julia_iterate(n, JULIA_CONSTANT);
             pixels.lock().unwrap()[(imag + height / 2) as usize][(real + width / 2) as usize] =
@@ -41,18 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap()
         .iter()
         .for_each(|row| image_data.extend(row));
-
-    let mut encoder = Encoder::new(
-        BufWriter::new(File::create("output.png")?),
-        SCREEN_WIDTH,
-        SCREEN_HEIGHT,
-    );
-    encoder.set_color(ColorType::Grayscale);
-    encoder.set_depth(BitDepth::Eight);
-    let mut writer = encoder.write_header().unwrap();
-    writer.write_image_data(&image_data).unwrap();
-
-    Ok(())
+    image_data
 }
 
 fn julia_iterate(start: Complex<f64>, constant: Complex<f64>) -> Option<usize> {
