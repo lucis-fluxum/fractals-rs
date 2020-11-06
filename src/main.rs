@@ -4,13 +4,13 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use num::Complex;
+use num_complex::Complex;
 use png::{BitDepth, ColorType, Encoder};
 use rayon::prelude::*;
 
 const SCREEN_WIDTH: u32 = 1920;
 const SCREEN_HEIGHT: u32 = 1080;
-const MAX_ITERATIONS: usize = 1000;
+const MAX_ITERATIONS: usize = 2000;
 const MAX_OUTPUT_NORM: f64 = 100.0;
 const JULIA_CONSTANT: Complex<f64> = Complex::new(-0.512511498387847167, 0.521295573094847167);
 

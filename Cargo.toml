@@ -1,11 +1,11 @@
 [package]
-name = "mandelbrot"
+name = "fractals"
 version = "0.1.0"
 authors = ["Luc Street <lucis-fluxum@users.noreply.github.com>"]
 edition = "2018"
 publish = false
 
 [dependencies]
-num = "0.3"
+num-complex = "0.3"
 png = "0.16"
 rayon = "1"
